@@ -1,0 +1,6 @@
+bin/
+docs/
+htmldocs/
+nimcache/
+testresults
+outputGotten.txt
