@@ -7,11 +7,12 @@
 Nofi wraps the existing [rofi](https://github.com/pnnl/rofi) interface implemented by Pacific Northwest National
 Laboratory (PNNL). Nofi provides the Nim programming language support
 for RDMDA distributed communication (put and get). Messages are treated
-as a sequence of bytes. This library extends rofi by providing a sequence
-type that wraps memory that has been registered with the underlying rofi
-RDMA communicaton library. The sequence type only supports values that
-are of SomeNumber type. **Nim applications using Nofi require static
-compilation and linking!**
+as a sequence of bytes.
+
+This library extends rofi by providing a sequence type that wraps memory
+registered with the underlying rofi RDMA communicaton library. The sequence
+type only supports values that are of SomeNumber type. **Nim applications using
+Nofi require static compilation and linking!**
 
 ### Install
 
