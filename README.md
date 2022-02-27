@@ -2,7 +2,7 @@
 <!--                                                                                -->
 <!--   Distributed under the Boost Software License, Version 1.0. (See accompanying -->
 <!--   file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)        -->
-#[nofi - Nim OpenFabrics Interface](https://github.com/ct-clmsn/nofi)
+# [nofi - Nim OpenFabrics Interface](https://github.com/ct-clmsn/nofi)
 
 Nofi wraps the existing [rofi](https://github.com/pnnl/rofi) interface implemented by Pacific Northwest National
 Laboratory (PNNL). Nofi provides the Nim programming language support
