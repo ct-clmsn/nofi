@@ -42,7 +42,7 @@ nimble doc nofi
 
 ### Important Developer Notes
 
-Nofi demonstrates the versitility of the rofi library and
+Nofi demonstrates the versitility of the [rofi library](https://github.com/pnnl/rofi) and
 it's value as a lightweight technology for extending RDMA
 support via libfabric to languages that have a FFI (foreign
 function interface) compatible with C.
