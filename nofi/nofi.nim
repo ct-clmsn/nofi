@@ -50,7 +50,7 @@ proc nofi_wait*() : int =
     result = bindings.rofi_wait()
 
 proc nofi_put*[T : SomeNumber](dst : ptr UncheckedArray[T], dst_len : uint32, src : ptr UncheckedArray[T], src_len : uint32, id : uint32, flags : uint64) : int =
-   ## Asynchronous put; transfers byte in `src` in the current process virtual address space to
+    ## Asynchronous put; transfers byte in `src` in the current process virtual address space to
     ## process `id` at address `dst` in the destination. Users must check for completion or invoke
     ## nofi_wait. Do not modify the seq before the transfer terminates
     ##
@@ -225,7 +225,7 @@ proc get_local_address_from_remote_address(src : nofiseq[T]) : int =
 proc put*[T : SomeNumber](dst : nofiseq[T], src : nofiseq[T], id : uint32, flags : uint64) : int =
     ## Asynchronous put; transfers byte in `src` in the current process virtual address space to
     ## process `id` at address `dst` in the destination. Users must check for completion or invoke
-    ## nofi_wait. Do not modify the seq before the transfer terminates
+    ## nofi_wait. Do not modify the seq before the transfer terminates.
     ##
     assert(dst.len == src.len)
     result = bindings.rofi_put(dst.data, src.data, T.sizeof * src.len, id, flags)
@@ -261,5 +261,3 @@ proc irecv*[T : SomeNumber](src : nofiseq[T], id : uint32, flags : uint64) : int
     ## Synchronous transfer bytes from remote process `id` into current process at 'src' 
     ##
     result = bindings.rofi_irecv(id, src.data, T.sizeof*src.len, flags)
-
-
