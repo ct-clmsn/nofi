@@ -71,7 +71,7 @@ how to interact with this library.
 ### Licenses
 
 * nofi is Boost Version 1.0 (2022-)
-* rofi is Battelle Memorial Institute License and BSD License (2020)
+* rofi is BSD License (2020)
 
 ### Date
 
