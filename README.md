@@ -11,8 +11,8 @@ as a sequence of bytes.
 
 This library extends rofi by providing a sequence type that wraps memory
 registered with the underlying rofi RDMA communicaton library. The sequence
-type only supports values that are of SomeNumber type. **Nim applications using
-Nofi require static compilation and linking!**
+type only supports values that are of [SomeNumber](https://nim-lang.org/docs/system.html#SomeNumber) types. **Nim applications
+using nofi require static compilation and linking!**
 
 ### Install
 
