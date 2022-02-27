@@ -57,7 +57,7 @@ enable static compilation and linking with the Nim compiler.
 
 Users must initialize and terminate all programs using
 `nofi_init` and `nofi_finit`. Not taking this step will
-create undesirable results.
+result in undefined behavior.
 
 Users are strongly encouraged to utilize Nim blocks and
 scoping rules to managing memory that has been registered
