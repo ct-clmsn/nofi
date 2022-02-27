@@ -43,7 +43,7 @@ nimble doc nofi
 
 Nofi demonstrates the versitility of the rofi library and
 it's value as a lightweight technology for extending RDMA
-support via libfabric to langauges that have a FFI (foreign
+support via libfabric to languages that have a FFI (foreign
 function interface) compatible with C.
 
 Users need to review the [rofi documentation](https://github.com/pnnl/rofi/blob/master/README.md) prior
