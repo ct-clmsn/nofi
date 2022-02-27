@@ -56,7 +56,7 @@ Nim program. Please review the makefile to learn how to
 enable static compilation and linking with the Nim compiler.
 
 Users must initialize and terminate all programs using
-'nofi_init' and 'nofi_finit'. Not taking this step will
+`nofi_init` and `nofi_finit`. Not taking this step will
 create undesirable results.
 
 Users are strongly encouraged to utilize Nim blocks and
