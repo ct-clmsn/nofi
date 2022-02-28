@@ -9,9 +9,10 @@ Laboratory (PNNL). Nofi provides the Nim programming language support
 for RDMDA distributed communication (put and get). Messages are treated
 as a sequence of bytes.
 
-This library extends rofi by providing a sequence type that wraps memory
+This library extends rofi by providing a [sequence type](https://nim-lang.org/docs/system.html#seq) that wraps memory
 registered with the underlying rofi RDMA communicaton library. The sequence
-type only supports values that are of [SomeNumber](https://nim-lang.org/docs/system.html#SomeNumber) types. **Nim applications
+type only supports values that are of [SomeNumber](https://nim-lang.org/docs/system.html#SomeNumber) types. The sequence
+type provides element-access, slice, and partitioning support. **Nim applications
 using nofi require static compilation and linking!**
 
 ### Install
