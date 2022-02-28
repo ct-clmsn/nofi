@@ -331,7 +331,9 @@ proc distribute*[T : SomeNumber](src : nofiseq[T], num : Positive, spread=true) 
 proc deferPut*[T : SomeNumber](dst : nofiseq[T], src : nofiseq[T], id : uint32, flags : uint64) =
     ## Asynchronous put; transfers byte in `src` in the current process virtual address space to
     ## process `id` at address `dst` in the destination. Users must check for completion or invoke
-    ## nofi_wait. Do not modify the seq before the transfer terminates.
+    ## nofi_wait.
+    ##
+    ## Do not modify the seq before the transfer terminates.
     ##
     assert(dst.len == src.len)
     result = bindings.rofi_put(dst.data, src.data, T.sizeof * src.len, id, flags)
@@ -340,6 +342,7 @@ proc deferPut*[T : SomeNumber](dst : nofiseq[T], src : nofiseq[T], id : uint32, 
 proc deferGet*[T : SomeNumber](dst : nofiseq[T], src : nofiseq[T], id : uint32, flags : uint64) =
     ## Asynchronous get; transfers bytes in `src` in a remote process `id`'s virtual address space
     ## into the current process at address `dst`. Users must check for completion or invoke nofi_wait.
+    ##
     ## Do not modify the seq before the transfer terminates
     ## 
     assert(dst.len == src.len)
@@ -349,7 +352,9 @@ proc deferGet*[T : SomeNumber](dst : nofiseq[T], src : nofiseq[T], id : uint32, 
 template withPut*[T : SomeNumber](dst : nofiseq[T], src : nofiseq[T], id : uint32, flags : uint64, body : untyped) =
     ## Asynchronous put; transfers byte in `src` in the current process virtual address space to
     ## process `id` at address `dst` in the destination. Users must check for completion or invoke
-    ## nofi_wait. Do not modify the seq before the transfer terminates.
+    ## nofi_wait.
+    ##
+    ## Do not modify the seq before the transfer terminates.
     ##
     assert(dst.len == src.len)
     result = bindings.rofi_put(dst.data, src.data, T.sizeof * src.len, id, flags)
@@ -359,6 +364,7 @@ template withPut*[T : SomeNumber](dst : nofiseq[T], src : nofiseq[T], id : uint3
 template withGet*[T : SomeNumber](dst : nofiseq[T], src : nofiseq[T], id : uint32, flags : uint64, body : untyped) =
     ## Asynchronous get; transfers bytes in `src` in a remote process `id`'s virtual address space
     ## into the current process at address `dst`. Users must check for completion or invoke nofi_wait.
+    ##
     ## Do not modify the seq before the transfer terminates
     ## 
     assert(dst.len == src.len)
