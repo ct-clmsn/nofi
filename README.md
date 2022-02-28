@@ -54,7 +54,7 @@ to using this library in order to understand rofi's feature
 set and potential limitations.
 
 This library requires static compilation of an end user's
-Nim program. Please review the makefile to learn how to
+Nim program. Please review the `makefile` to learn how to
 enable static compilation and linking with the Nim compiler.
 
 Users must initialize and terminate all programs using
