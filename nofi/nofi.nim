@@ -249,7 +249,7 @@ proc owner*[T](x : nofiseq[T]) : bool = x.owned
 
 proc `[]`[T; U, V: Ordinal](s: nofiseq[T]; x: HSlice[U, V]): nofiseq[T] =
     assert s.sp >= x.a and e.ep <= x.b
-    return nofiseq[T]( owned : false, sp : x.a, ep : x.b, data : cast[ptr UncheckedArray[T]( cast[ByteAddress](s.data) +% x.a * T.sizeof ) )
+    return nofiseq[T]( owned : false, sp : x.a, ep : x.b, data : cast[ptr UncheckedArray[T]]( cast[ByteAddress](s.data) +% x.a * T.sizeof ) )
 
 proc get_remote_address(src : nofiseq[T]) : int =
     result = bindings.rofi_get_remote_address(src.data, id)
