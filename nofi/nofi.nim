@@ -327,3 +327,49 @@ proc distribute*[T : SomeNumber](src : nofiseq[T], num : Positive, spread=true) 
                 inc(last)
             result[i] = src[first..last]
             first = last    
+
+proc deferPut*[T : SomeNumber](dst : nofiseq[T], src : nofiseq[T], id : uint32, flags : uint64) : int =
+    ## Asynchronous put; transfers byte in `src` in the current process virtual address space to
+    ## process `id` at address `dst` in the destination. Users must check for completion or invoke
+    ## nofi_wait. Do not modify the seq before the transfer terminates.
+    ##
+    assert(dst.len == src.len)
+    result = bindings.rofi_put(dst.data, src.data, T.sizeof * src.len, id, flags)
+    defer: bindings.rofi_wait()
+
+proc deferGet*[T : SomeNumber](dst : nofiseq[T], src : nofiseq[T], id : uint32, flags : uint64) : int =
+    ## Asynchronous get; transfers bytes in `src` in a remote process `id`'s virtual address space
+    ## into the current process at address `dst`. Users must check for completion or invoke nofi_wait.
+    ## Do not modify the seq before the transfer terminates
+    ## 
+    assert(dst.len == src.len)
+    result = bindings.rofi_get(dst.data, src.data, T.sizeof * src.len, id, flags)
+    defer: bindings.rofi_wait()
+
+proc deferIPut*[T : SomeNumber](dst : nofiseq[T], src : nofiseq[T], id : uint32, flags : uint64) : int =
+    ## Synchronous put; transfers byte in `src` in the current process virtual address space to
+    ## process `id` at address `dst` in the destination process.
+    ##
+    assert(dst.len == src.len)
+    result = bindings.rofi_put(dst.data, src.data, T.sizeof * src.len, id, flags)
+    defer: bindings.rofi_wait()
+
+proc deferIGet*[T : SomeNumber](dst : nofiseq[T], src : nofiseq[T], id : uint32, flags : uint64) : int =
+    ## Synchronous get; transfers bytes in `src` in a remote process `id`'s virtual address space
+    ## into the current process at address `dst`.
+    ## 
+    assert(dst.len == src.len)
+    result = bindings.rofi_get(dst.data, src.data, T.sizeof * src.len, id, flags)
+    defer: bindings.rofi_wait()
+
+proc deferISend*[T : SomeNumber](src : nofiseq[T], id : uint32, flags : uint64) : int =
+    ## Synchronous transfer bytes from the current process at address `src` to process `id` 
+    ##
+    result = bindings.rofi_isend(id, src.data, T.sizeof*src.len, flags)
+    defer: bindings.rofi_wait()
+
+proc deferIRecv*[T : SomeNumber](src : nofiseq[T], id : uint32, flags : uint64) : int =
+    ## Synchronous transfer bytes from remote process `id` into current process at 'src' 
+    ##
+    result = bindings.rofi_irecv(id, src.data, T.sizeof*src.len, flags)
+    defer: bindings.rofi_wait()
