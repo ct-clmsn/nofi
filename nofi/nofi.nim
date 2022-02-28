@@ -257,13 +257,13 @@ iterator items*[T](a : nofiseq[T]) : T =
     ## iterator over the elements in a nofiseq
     ##
     for i in a.sp..a.ep:
-        yield a[i-a.sp] 
+        yield a.data[i-a.sp] 
 
 iterator pairs*[T](a : nofiseq[T]) : T =
     ## iterator returns pairs (index, value) over elements in a nofiseq
     ##
     for i in a.sp..a.ep:
-        yield (i, a[i-a.sp])
+        yield (i, a.data[i-a.sp])
 
 proc `[]`[T; U, V: Ordinal](s: nofiseq[T]; x: HSlice[U, V]): nofiseq[T] =
     assert s.sp >= x.a and e.ep <= x.b
