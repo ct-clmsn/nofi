@@ -150,15 +150,16 @@ type nofiseq*[T : SomeNumber] = object
     ## is registered with libfabric for RDMA
     ## communications.
     ##
-    open : bool
-    len : uint64
+    owned : bool
+    sp : uint64
+    ep : uint64
     data : ptr UncheckedArray[T]
 
 proc createSeq*[T](sz : uint64) : nofiseq[T] =
     ## creates a nofiseq[T] with 'sz' number of
     ## elements of type 'T'
     ##
-    return nofiseq[T]( open : true, len : sz, data : nofi_alloc[T](sz, 0x0) )
+    return nofiseq[T]( owned : true, sp : 0, ep : sz, data : nofi_alloc[T](sz, 0x0) )
 
 proc createSeq*[T](elems: varargs[T]) : nofiseq[T] =
     ## creates a nofiseq[T] that has the same length
@@ -166,26 +167,30 @@ proc createSeq*[T](elems: varargs[T]) : nofiseq[T] =
     ## nofiseq[T] is equal to the values in 'elems'
     ##
     var sz = cast[uint64](elems.len)
-    var res = nofiseq[T]( open : true, len : sz, data : nofi_alloc[T](sz, 0x0) )
+    var res = nofiseq[T]( owned : true, sp : 0, ep : sz, data : nofi_alloc[T](sz, 0x0) )
     for i in 0..<res.len: res.data[i] = elems[i]
     return res
 
 proc freeSeq*[T](x : var nofiseq[T]) =
     ## manually frees a nofiseq[T]
     ##
-    if x.open:
-        x.len = 0
+    if x.owned:
+        x.sp = 0
+        x.ep = 0
         nofi_release[T](x.data)
         x.data = nil
-        x.open = false
+        x.owned = false
 
 proc `=destroy`*[T](x : var nofiseq[T]) =
     ## frees a nofiseq[T] when it falls out
     ## of scope
     ##
-    if x.open:
+    if x.owned :
+        x.sp = 0
+        x.ep = 0
         nofi_release[T](x.data)
-        x.open = false
+        x.data = nil
+        x.owned = false
 
 proc `=sink`*[T](a: var nofiseq[T]; b: nofiseq[T]) =
     ## provides move assignment
@@ -195,26 +200,32 @@ proc `=sink`*[T](a: var nofiseq[T]; b: nofiseq[T]) =
     # Compiler is using `=destroy` and `copyMem` when not provided
     # 
     wasMoved(a)
-    a.len = b.len
+    a.sp = b.sp
+    a.ep = b.ep
     a.data = b.data
+    a.owned = b.owned
 
 proc `[]`*[T](x:nofiseq[T]; i: Natural): lent T =
     ## return a value at position 'i'
     ##
-    assert cast[uint64](i) < x.len
+    assert cast[uint64](i) >= x.sp and cast[uint64](i) < x.ep
     x.data[i]
 
 proc `[]=`*[T](x: var nofiseq[T]; i: Natural; y: sink T) =
     ## assign a value at position 'i' equal to
     ## the value 'y'
     ##
-    assert i < x.len
+    assert cast[uint64](i) >= x.sp and cast[uint64](i) < x.ep
     x.data[i] = y
 
 #proc print*[T](x : var nofiseq[T]) =
 #    printaddr(x.data)
 
-proc len*[T](x: nofiseq[T]): uint64 {.inline.} = x.len
+proc len*[T](x: nofiseq[T]): uint64 {.inline.} = x.ep - x.sp
+
+proc `[]`[T; U, V: Ordinal](s: nofiseq[T]; x: HSlice[U, V]): nofiseq[T] =
+    assert s.sp >= x.a and e.ep <= x.b
+    return nofiseq[T]( owned : false, sp : x.a, ep : x.b, data : cast[ptr UncheckedArray[T]( cast[ByteAddress](s.data) +% x.a * T.sizeof ) )
 
 proc get_remote_address(src : nofiseq[T]) : int =
     result = bindings.rofi_get_remote_address(src.data, id)
