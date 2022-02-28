@@ -14,7 +14,7 @@ registered with the underlying rofi RDMA communicaton library. The sequence type
 only supports values that are of [SomeNumber](https://nim-lang.org/docs/system.html#SomeNumber) types. The sequence
 type provides element-access, slice, iterator, and partitioning support.
 
-Additional functionality is provided to handle asynchronous `put` and `get` operations using Nim's [defer statements](https://nim-lang.org/docs/manual.html#exception-handling-defer-statement), [try statements](https://nim-lang.org/docs/manual.html#exception-handling-try-expression), and [futures](https://nim-lang.org/docs/asyncfutures.html).
+Additional functionality is provided to handle asynchronous `put` and `get` operations using Nim's [defer statements](https://nim-lang.org/docs/manual.html#exception-handling-defer-statement), combining [templates](https://nim-lang.org/docs/manual.html#templates) with [try statements](https://nim-lang.org/docs/manual.html#exception-handling-try-expression), and [futures](https://nim-lang.org/docs/asyncfutures.html).
 
 **Nim applications using nofi require static compilation and linking!**
 
