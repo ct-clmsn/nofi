@@ -155,6 +155,9 @@ type nofiseq*[T : SomeNumber] = object
     ep : uint64
     data : ptr UncheckedArray[T]
 
+proc createSeq*[T]() : nofiseq[T] =
+    return nofiseq[T]( owned : false, sp : 0, ep : 0, data : nil )
+
 proc createSeq*[T](sz : uint64) : nofiseq[T] =
     ## creates a nofiseq[T] with 'sz' number of
     ## elements of type 'T'
@@ -180,6 +183,25 @@ proc freeSeq*[T](x : var nofiseq[T]) =
         nofi_release[T](x.data)
         x.data = nil
         x.owned = false
+
+proc newNofiSeq*[T]() : nofiseq[T] =
+    return nofiseq[T]( owned : false, sp : 0, ep : 0, data : nil )
+
+proc newNofiSeq*[T](sz : uint64) : nofiseq[T] =
+    ## creates a nofiseq[T] with 'sz' number of
+    ## elements of type 'T'
+    ##
+    return nofiseq[T]( owned : true, sp : 0, ep : sz, data : nofi_alloc[T](sz, 0x0) )
+
+proc newNofiSeq*[T](elems: varargs[T]) : nofiseq[T] =
+    ## creates a nofiseq[T] that has the same length
+    ## as 'elems' and each value in the returned
+    ## nofiseq[T] is equal to the values in 'elems'
+    ##
+    var sz = cast[uint64](elems.len)
+    var res = nofiseq[T]( owned : true, sp : 0, ep : sz, data : nofi_alloc[T](sz, 0x0) )
+    for i in 0..<res.len: res.data[i] = elems[i]
+    return res
 
 proc `=destroy`*[T](x : var nofiseq[T]) =
     ## frees a nofiseq[T] when it falls out
@@ -222,6 +244,8 @@ proc `[]=`*[T](x: var nofiseq[T]; i: Natural; y: sink T) =
 #    printaddr(x.data)
 
 proc len*[T](x: nofiseq[T]): uint64 {.inline.} = x.ep - x.sp
+
+proc owner*[T](x : nofiseq[T]) : bool = x.owned
 
 proc `[]`[T; U, V: Ordinal](s: nofiseq[T]; x: HSlice[U, V]): nofiseq[T] =
     assert s.sp >= x.a and e.ep <= x.b
@@ -272,3 +296,34 @@ proc irecv*[T : SomeNumber](src : nofiseq[T], id : uint32, flags : uint64) : int
     ## Synchronous transfer bytes from remote process `id` into current process at 'src' 
     ##
     result = bindings.rofi_irecv(id, src.data, T.sizeof*src.len, flags)
+
+proc distribute*[T : SomeNumber](src : nofiseq[T], num : Positive, spread=true) : seq[nofiseq[T]] =
+    ## Splits a nofiseq[T] into num a sequence of nofiseq's;
+    ## nofiseq's do not `own` their data.
+    ##
+    if num < 2:
+        result = @[s]
+        return
+
+    result = newSeq[nofiseq[T]](num)
+    var
+        stride = s.len div num
+        first = 0
+        last = 0
+        extra = s.len mod num
+
+    if extra == 0 or spread == false:
+        # Use an algorithm which overcounts the stride and minimizes reading limits.
+        if extra > 0: inc(stride)
+        for i in 0 ..< num:
+            result[i] = src[first..min(s.len, first+stride)]
+            first += stride
+    else:
+        # Use an undercounting algorithm which *adds* the remainder each iteration.
+        for i in 0 ..< num:
+            last = first + stride
+            if extra > 0:
+                extra -= 1
+                inc(last)
+            result[i] = src[first..last]
+            first = last    
