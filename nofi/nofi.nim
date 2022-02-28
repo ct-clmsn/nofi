@@ -276,7 +276,7 @@ proc get_remote_address(src : nofiseq[T]) : int =
 proc get_local_address_from_remote_address(src : nofiseq[T]) : int =
     result = bindings.rofi_get_local_address_from_remote_address(src.data, id)
 
-proc put*[T : SomeNumber](dst : nofiseq[T], src : nofiseq[T], id : uint32, flags : uint64) : int =
+proc put*[T : SomeNumber](src : nofiseq[T], dst : nofiseq[T], id : uint32, flags : uint64) : int =
     ## Asynchronous put; transfers byte in `src` in the current process virtual address space to
     ## process `id` at address `dst` in the destination. Users must check for completion or invoke
     ## nofi_wait. Do not modify the seq before the transfer terminates.
@@ -292,7 +292,7 @@ proc get*[T : SomeNumber](dst : nofiseq[T], src : nofiseq[T], id : uint32, flags
     assert(dst.len == src.len)
     result = bindings.rofi_get(dst.data, src.data, T.sizeof * src.len, id, flags)
 
-proc iput*[T : SomeNumber](dst : nofiseq[T], src : nofiseq[T], id : uint32, flags : uint64) : int =
+proc iput*[T : SomeNumber](src : nofiseq[T], dst : nofiseq[T], id : uint32, flags : uint64) : int =
     ## Synchronous put; transfers byte in `src` in the current process virtual address space to
     ## process `id` at address `dst` in the destination process.
     ##
@@ -347,7 +347,7 @@ proc distribute*[T : SomeNumber](src : nofiseq[T], num : Positive, spread=true) 
             result[i] = src[first..last]
             first = last    
 
-proc deferPut*[T : SomeNumber](dst : nofiseq[T], src : nofiseq[T], id : uint32, flags : uint64) : int =
+proc deferPut*[T : SomeNumber](src : nofiseq[T], dst : nofiseq[T], id : uint32, flags : uint64) : int =
     ## Asynchronous put; transfers byte in `src` in the current process virtual address space to
     ## process `id` at address `dst` in the destination. Users must check for completion or invoke
     ## nofi_wait.
@@ -368,7 +368,7 @@ proc deferGet*[T : SomeNumber](dst : nofiseq[T], src : nofiseq[T], id : uint32, 
     result = bindings.rofi_get(dst.data, src.data, T.sizeof * src.len, id, flags)
     defer: bindings.rofi_wait()
 
-template withPut*[T : SomeNumber](dst : nofiseq[T], src : nofiseq[T], id : uint32, flags : uint64, body : untyped) : int =
+template withPut*[T : SomeNumber](src : nofiseq[T], dst : nofiseq[T], id : uint32, flags : uint64, body : untyped) : int =
     ## Asynchronous put; transfers byte in `src` in the current process virtual address space to
     ## process `id` at address `dst` in the destination. Users must check for completion or invoke
     ## nofi_wait.
