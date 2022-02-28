@@ -5,6 +5,7 @@
 #  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 #
 import system/assertions
+import std/asyncfutures
 import ./bindings
 
 #{.emit: "#include<stdio.h>".}
@@ -346,7 +347,7 @@ proc distribute*[T : SomeNumber](src : nofiseq[T], num : Positive, spread=true) 
             result[i] = src[first..last]
             first = last    
 
-proc deferPut*[T : SomeNumber](dst : nofiseq[T], src : nofiseq[T], id : uint32, flags : uint64) =
+proc deferPut*[T : SomeNumber](dst : nofiseq[T], src : nofiseq[T], id : uint32, flags : uint64) : int =
     ## Asynchronous put; transfers byte in `src` in the current process virtual address space to
     ## process `id` at address `dst` in the destination. Users must check for completion or invoke
     ## nofi_wait.
@@ -357,7 +358,7 @@ proc deferPut*[T : SomeNumber](dst : nofiseq[T], src : nofiseq[T], id : uint32, 
     result = bindings.rofi_put(dst.data, src.data, T.sizeof * src.len, id, flags)
     defer: bindings.rofi_wait()
 
-proc deferGet*[T : SomeNumber](dst : nofiseq[T], src : nofiseq[T], id : uint32, flags : uint64) =
+proc deferGet*[T : SomeNumber](dst : nofiseq[T], src : nofiseq[T], id : uint32, flags : uint64) : int =
     ## Asynchronous get; transfers bytes in `src` in a remote process `id`'s virtual address space
     ## into the current process at address `dst`. Users must check for completion or invoke nofi_wait.
     ##
@@ -367,7 +368,7 @@ proc deferGet*[T : SomeNumber](dst : nofiseq[T], src : nofiseq[T], id : uint32, 
     result = bindings.rofi_get(dst.data, src.data, T.sizeof * src.len, id, flags)
     defer: bindings.rofi_wait()
 
-template withPut*[T : SomeNumber](dst : nofiseq[T], src : nofiseq[T], id : uint32, flags : uint64, body : untyped) =
+template withPut*[T : SomeNumber](dst : nofiseq[T], src : nofiseq[T], id : uint32, flags : uint64, body : untyped) : int =
     ## Asynchronous put; transfers byte in `src` in the current process virtual address space to
     ## process `id` at address `dst` in the destination. Users must check for completion or invoke
     ## nofi_wait.
@@ -379,7 +380,7 @@ template withPut*[T : SomeNumber](dst : nofiseq[T], src : nofiseq[T], id : uint3
     try : body
     finally: bindings.rofi_wait()
 
-template withGet*[T : SomeNumber](dst : nofiseq[T], src : nofiseq[T], id : uint32, flags : uint64, body : untyped) =
+template withGet*[T : SomeNumber](dst : nofiseq[T], src : nofiseq[T], id : uint32, flags : uint64, body : untyped) : int =
     ## Asynchronous get; transfers bytes in `src` in a remote process `id`'s virtual address space
     ## into the current process at address `dst`. Users must check for completion or invoke nofi_wait.
     ##
@@ -389,3 +390,30 @@ template withGet*[T : SomeNumber](dst : nofiseq[T], src : nofiseq[T], id : uint3
     result = bindings.rofi_get(dst.data, src.data, T.sizeof * src.len, id, flags)
     try : body
     finally: bindings.rofi_wait()
+
+proc putAwait*[T : SomeNumber](src : nofiseq[T], dst : nofiseq[T], id : uint32, flags : uint64) : Future[int] =
+    ## Asynchronous put; transfers byte in `src` in the current process virtual address space to
+    ## process `id` at address `dst` in the destination. Users must check for completion or invoke
+    ## nofi_wait.
+    ##
+    ## Do not modify the seq before the transfer terminates.
+    ##
+    assert(dst.len == src.len)
+    var retfut = newFuture[int]()
+    var rc = bindings.rofi_put(dst.data, src.data, T.sizeof * src.len, id, flags)
+    bindings.rofi_wait()
+    retfut.complete(rc)
+    return retfut
+
+proc getAwait*[T : SomeNumber](dst : nofiseq[T], src : nofiseq[T], id : uint32, flags : uint64) : Future[int] =
+    ## Asynchronous get; transfers bytes in `src` in a remote process `id`'s virtual address space
+    ## into the current process at address `dst`. Users must check for completion or invoke nofi_wait.
+    ##
+    ## Do not modify the seq before the transfer terminates
+    ## 
+    assert(dst.len == src.len)
+    var retfut = newFuture[int]()
+    var rc = bindings.rofi_get(dst.data, src.data, T.sizeof * src.len, id, flags)
+    bindings.rofi_wait()
+    retfut.complete(rc)
+    return retfut
