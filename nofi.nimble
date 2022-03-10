@@ -8,7 +8,7 @@
 version       = "0.0.1"
 author        = "Christopher Taylor"
 description   = "nim rofi (rust openfabrics interface) wrapper"
-license       = "Boost"
+license       = "boost"
 
 # Dependencies
 requires "nim >= 0.18.0"
