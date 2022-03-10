@@ -6,12 +6,17 @@
 
 Nofi wraps the existing [rofi](https://github.com/pnnl/rofi) interface implemented by Pacific Northwest National
 Laboratory (PNNL). Nofi provides the Nim programming language support
-for RDMDA distributed communication (put and get). Messages are treated
-as a sequence of bytes. This library extends rofi by providing a sequence
-type that wraps memory that has been registered with the underlying rofi
-RDMA communicaton library. The sequence type only supports values that
-are of SomeNumber type. **Nim applications using Nofi require static
-compilation and linking!**
+for RDMA distributed communication (put and get), fundamental operations
+for [PGAS](https://en.wikipedia.org/wiki/Partitioned_global_address_space) applications.
+
+This library extends rofi by providing a [sequence type](https://nim-lang.org/docs/system.html#seq) that wraps memory
+registered with the underlying rofi RDMA communicaton library. The sequence type
+only supports values that are of [SomeNumber](https://nim-lang.org/docs/system.html#SomeNumber) types. The sequence
+type provides element-access, slice, iterator, and partitioning support.
+
+Additional functionality is provided to handle asynchronous `put` and `get` operations using Nim's [defer statements](https://nim-lang.org/docs/manual.html#exception-handling-defer-statement), combining [templates](https://nim-lang.org/docs/manual.html#templates) with [try statements](https://nim-lang.org/docs/manual.html#exception-handling-try-expression), and [futures](https://nim-lang.org/docs/asyncfutures.html).
+
+**Nim applications using nofi require static compilation and linking!**
 
 ### Install
 
@@ -41,7 +46,7 @@ nimble doc nofi
 
 ### Important Developer Notes
 
-Nofi demonstrates the versitility of the rofi library and
+Nofi demonstrates the versitility of the [rofi library](https://github.com/pnnl/rofi) and
 it's value as a lightweight technology for extending RDMA
 support via libfabric to languages that have a FFI (foreign
 function interface) compatible with C.
@@ -51,12 +56,12 @@ to using this library in order to understand rofi's feature
 set and potential limitations.
 
 This library requires static compilation of an end user's
-Nim program. Please review the makefile to learn how to
+Nim program. Please review the `makefile` to learn how to
 enable static compilation and linking with the Nim compiler.
 
 Users must initialize and terminate all programs using
-'nofi_init' and 'nofi_finit'. Not taking this step will
-create undesirable results.
+`nofi_init` and `nofi_finit`. Not taking this step will
+result in undefined behavior.
 
 Users are strongly encouraged to utilize Nim blocks and
 scoping rules to managing memory that has been registered
